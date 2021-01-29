@@ -1,4 +1,7 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
+
+
 
 module.exports = {
     mode: 'development',
@@ -15,14 +18,17 @@ module.exports = {
     },
     plugins: [new HtmlWebpackPlugin({
         template: './src/index.html'
-    })],
+    }),
+    new Dotenv()
+],
     devServer: {
         historyApiFallback: true
     },
     externals: {
         // global app config object
         config: JSON.stringify({
-            apiUrl: 'https://api-asa-2021.herokuapp.com'
+            apiUrl: process.env.API_ENDPOINT
         })
     }
+    
 }
