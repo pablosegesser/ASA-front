@@ -1,6 +1,6 @@
-//import config from 'config';
+import config from 'config';
 import { authHeader } from '../_helpers';
-const apiUrl = process.env.API_ENDPOINT;
+
 
 export const campeonatoService = {
     logout,
@@ -19,7 +19,7 @@ function getAll() {
         headers: authHeader()
     };
 
-    return fetch(`${apiUrl}/campeonatos`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/campeonatos`, requestOptions).then(handleResponse);
 }
 function logout() {
     // remove user from local storage to log user out
@@ -32,7 +32,7 @@ function getById(id) {
         headers: authHeader()
     };
 
-    return fetch(`${apiUrl}/campeonatos/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/campeonatos/${id}`, requestOptions).then(handleResponse);
 }
 
 function register(user) {
@@ -42,7 +42,7 @@ function register(user) {
         body: JSON.stringify(user)
     };
 
-    return fetch(`${apiUrl}/campeonatos/add-new`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/campeonatos/add-new`, requestOptions).then(handleResponse);
 }
 
 
@@ -53,7 +53,7 @@ function update(user) {
         body: JSON.stringify(user)
     };
 
-    return fetch(`${apiUrl}/campeonatos/${user.id}`, requestOptions).then(handleResponse);;
+    return fetch(`${config.apiUrl}/campeonatos/${user.id}`, requestOptions).then(handleResponse);;
 }
 
 // prefixed function name with underscore because delete is a reserved word in javascript
@@ -63,7 +63,7 @@ function _delete(id) {
         headers: authHeader()
     };
 
-    return fetch(`${apiUrl}/campeonatos/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/campeonatos/${id}`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {
