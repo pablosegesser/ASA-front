@@ -1,8 +1,6 @@
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
-
-
 module.exports = {
     mode: 'development',
     resolve: {
