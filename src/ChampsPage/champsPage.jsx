@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector, connect } from 'react-redux';
 import {alertActions} from '../_actions/alert.actions'
 import { userActions } from '../_actions';
- import {campeonatosActions} from '../_actions/campeonatos.actions';
+import {campeonatosActions} from '../_actions/campeonatos.actions';
+import {Grid, Button} from '@material-ui/core'
 
-function HomePage() {
-   
+
+export const champsPage = () => {
     const users = useSelector(state => state.users);
     const campeonatos = useSelector(state => state.campeonatos);
     const user = useSelector(state => state.authentication.user);
@@ -280,62 +281,58 @@ const refresh = () =>{
     getAlll();
   }, 300);
  }
+
     return (
-        <div className="col-lg-8 offset-lg-2">
-            <h1>Hola {user.firstName}!</h1>
-            <p>Estás logueado en la App</p>
-           
-            
-            <h1>USERS</h1>
-            <form onSubmit={submitSearch}>
-                            <div className="form-group">
-                                <label>Buscar por ID</label>
-                                <input id="searchInput" type="text" name="search" onChange={changeSearch} className={'form-control' + (submitted && error ? ' is-invalid' : '')}></input>
-                                {error &&
-                        <div className="invalid-feedback">This field is required</div>
-                    }
-                            </div>
-                            <div className="form-group">
-                                <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>BUSCAR</button>
-                                <button type="button" className="btn btn-primary" onClick={refresh} style={{margin: "10px"}}>CLEAR</button>
-                            </div>
-                        </form>
-                        <h3>All registered users:</h3>
-            {users.loading && <em>Loading users...</em>}
-            {users.error && <span className="text-danger">ERROR: {users.error}</span>}
-            {loading ? <em>Loading users...</em> : ''}
-            {users.items &&
+        <Grid container>
+                <h3>Todos los Campeonatos:</h3>
+                
+                {campeonatos.loading && <em>Loading champs...</em>}
+            {campeonatos.error && <span className="text-danger">ERROR: {campeonatos.error}</span>}
+            {loading ? <em>Loading champs...</em> : ''}
+            {campeonatos.items &&
                 <ul>
-                    {users.items.map((user, index) =>
+                    {campeonatos.items.map((user, index) =>
                         <li key={user.id}>
-                            {user.firstName + ' ' + user.lastName + ' ' + user.username}
+                            {user.nombre + ' ' + user.fecha + ' ' + user.lugar}
+                            <ul>
+                                {user.inscriptos.map((inscripto)=>
+                                 <li key={inscripto._id}>
+                                     {inscripto.nombre+' '+inscripto.apellido+' '+inscripto.edad}
+                                    <p>ID:{inscripto.id}</p>
+
+                                   {userCurrent.id == inscripto.id ? <button className="btn btn-primary" onClick={()=>deleteIncripcion(inscripto.id, user)}>Quitar inscripción</button> : ''}
+                                 </li>
+                                
+                                )}
+
+                               
+                            </ul>
                             <div>ID: {user.id}</div>
-                            <div>Date of Birth: {user.dateOfBirth}</div>
                             {
                                 user.deleting ? <em> - Deleting...</em>
                                 : user.deleteError ? <span className="text-danger"> - ERROR: {user.deleteError}</span>
-                                : <div><span> - <a onClick={() => handleDeleteUser(user.id)} className="text-primary">Delete</a></span> <span> - <a onClick={() => handleEdit(user.id)} className="text-primary">Edit</a></span> </div>
+                                : <div><span> - <a onClick={() => handleDeleteChamp(user.id)} className="text-primary">Delete</a></span> <span> - <a onClick={() => handleEditChamp(user)} className="text-primary">Edit</a></span> - <span><a onClick={() => handleSuscribe(user)} className="text-primary">Inscribirse</a></span> </div>
                             }
-                             {edit.open && edit.id == user.id &&
+                             {editchamp.open && editchamp.id == user.id &&
                     
                     <div>
                         
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmitChampsUpdate}>
                         <div className="form-group">
-                        <label>firstName</label>
-                        <input type="text" name="firstName" onChange={handleChange} defaultValue={user.firstName} className="form-control"></input>
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" onChange={handleChangeChampsUpdate} defaultValue={user.nombre} className="form-control"></input>
                         </div>
                         <div className="form-group">
-                        <label>lasstName</label>
-                        <input type="text" name="lastName" onChange={handleChange} defaultValue={user.lastName} className="form-control"></input>
+                        <label>Fecha</label>
+                        <input type="text" name="fecha" onChange={handleChangeChampsUpdate} defaultValue={user.fecha} className="form-control"></input>
                         </div>
                         <div className="form-group">
-                        <label>userName</label>
-                        <input type="text" name="username" onChange={handleChange} defaultValue={user.username} className="form-control"></input><br></br>
+                        <label>Lugar</label>
+                        <input type="text" name="lugar" onChange={handleChangeChampsUpdate} defaultValue={user.lugar} className="form-control"></input><br></br>
                         </div>
                         <div className="form-group">
-                        <label>dateOfBirth</label>
-                        <input type="date" name="dateOfBirth" onChange={handleChange} defaultValue={user.dateOfBirth} className="form-control"></input><br></br>
+                        <label>Descripcion</label>
+                        <input type="text" name="descripcion" onChange={handleChangeChampsUpdate} defaultValue={user.descripcion} className="form-control"></input><br></br>
                         </div>
                         <button onClick={close} className="btn btn-primary" style={{margin: "10px"}}>Cancel</button>        
                         <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
@@ -353,13 +350,34 @@ const refresh = () =>{
                    
                 </ul>
             }
-            <p>
-                <Link to="/login">Logout</Link>
-            </p>
-        </div>
-    );
+            <Grid item>
+            <Button className="btn btn-primary" onClick={openAdding}>Agregar +</Button>
+            </Grid>
+           
+           
+               {openAdd && 
+                        <form onSubmit={handleSubmitChampsNew}>
+                        <div className="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" onChange={handleChangeChamps}  className="form-control"></input>
+                        </div>
+                        <div className="form-group">
+                        <label>Fecha</label>
+                        <input type="text" name="fecha" onChange={handleChangeChamps}  className="form-control"></input>
+                        </div>
+                        <div className="form-group">
+                        <label>Lugar</label>
+                        <input type="text" name="lugar" onChange={handleChangeChamps}  className="form-control"></input><br></br>
+                        </div>
+                        <div className="form-group">
+                        <label>Descripcion</label>
+                        <input type="text" name="descripcion" onChange={handleChangeChamps}  className="form-control"></input><br></br>
+                        </div>
+                        <button onClick={close} className="btn btn-primary" style={{margin: "10px"}}>Cancel</button>        
+                        <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
+                        
+                        </form>}
+        </Grid>
+       
+    )
 }
-
-
-  
-  export {HomePage};

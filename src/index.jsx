@@ -9,8 +9,9 @@ import { App } from './App';
 //configureFakeBackend();
 
 render(
-    <Provider store={store}>
+    
+        <Provider store={store}>
         <App />
-    </Provider>,
+        </Provider>,
     document.getElementById('app')
 );
