@@ -9,6 +9,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import GetDimensions from '../_helpers/GetDimensions';
 import {userActions} from '../_actions/user.actions';
 import {useDispatch} from 'react-redux';
+import MainListItems from './listItems';
 
 
 
@@ -323,6 +324,8 @@ export default function NavBarDashboard(props) {
             <ChevronLeft />
           </IconButton>
         </div>
+        <Divider />
+        <List><MainListItems isOpen={open} windowsDimension={dimensions} drawerClose={handleDrawerClose}/></List>
         <Divider />
         {/*<Divider />
         <List>{secondaryListItems}</List>*/}
