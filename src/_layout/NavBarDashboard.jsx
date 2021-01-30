@@ -10,6 +10,7 @@ import GetDimensions from '../_helpers/GetDimensions';
 import {userActions} from '../_actions/user.actions';
 import {useDispatch} from 'react-redux';
 import MainListItems from './listItems';
+import logo from '../assets/logoTrans.png';
 
 
 
@@ -20,6 +21,12 @@ const drawerWidth = 240;
 
 
 const useStyles = makeStyles((theme) => ({
+  logo:{
+    maxXidth: "100%",
+    minHeight: "10px",
+    maxHeight: "100px",
+    padding: "10px"
+  },
   root: {
     display: 'flex',
   },
@@ -274,7 +281,7 @@ export default function NavBarDashboard(props) {
             </Grid>
             <Grid item xs={3} lg={2}>
              
-              {/* <img className="logo" src={logo} alt="modo agrario logo" />*/}
+               <img className={classes.logo} src={logo} alt="ASA surf" />
 
               
             </Grid>
@@ -306,7 +313,6 @@ export default function NavBarDashboard(props) {
            </Hidden>
 
            
-
 
 
           </Grid>

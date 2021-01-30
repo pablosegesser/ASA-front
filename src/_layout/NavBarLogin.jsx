@@ -11,9 +11,16 @@ import HomeIcon from '@material-ui/icons/Home';
 import { Grid } from '@material-ui/core';
 import { CloseSharp } from '@material-ui/icons';
 import GetDimensions from '../_helpers/GetDimensions';
+import logo from '../assets/logoTrans.png';
 
 
 const useStyles = makeStyles((theme) => ({
+  logo:{
+    maxXidth: "100%",
+    minHeight: "10px",
+    maxHeight: "100px",
+    padding: "10px"
+  },
   root: {
     flexGrow: 1,
   },
@@ -80,7 +87,7 @@ export default function NavBarLogin(props) {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.marginMob}>
          <Grid item xs ={6}>
-         {/*windowDimensions >= 768 ? <img className="logo" src={logo} alt="modo agrario logo" /> : <img className="logo" src={logoMob} alt="modo agrario logo" />*/}
+         <img className={classes.logo} src={logo} alt="ASA surf" />
          </Grid>
          <Grid item xs={6}>
        
