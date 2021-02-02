@@ -1,4 +1,4 @@
-//import './layout.css';
+import './layout.css';
 //import logo from '../../assets/LOGO_Modo_Agrario.svg';
 //import logoMob from '../../assets/ISOLOGO_MODO_AGRARIO.svg';
 import React, {useEffect, useState} from 'react';

@@ -38,7 +38,7 @@ const MainListItems = ({isOpen, windowsDimension, drawerClose, role}) => {
           <ListItemText primary="Campeonatos" />
         </ListItem>
       </NavLink>
-      <NavLink onClick={() => handleSelected(2)} style={{color: "#4A4A4A"}} exact to="/" activeClassName={"selected-left"}>
+      <NavLink onClick={() => handleSelected(2)} style={{color: "#4A4A4A"}} exact to="/usuarios" activeClassName={"selected-left"}>
         <ListItem button>
           <ListItemIcon>
             <GroupIcon/>

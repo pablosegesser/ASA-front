@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
+import './layout.css';
 import {AppBar,
   Drawer, CssBaseline, Toolbar, List, Typography, Divider,
   IconButton, Badge, Button, Grid, makeStyles, Tabs, Tab, Hidden
@@ -228,7 +229,7 @@ export default function NavBarDashboard(props) {
     return (
       <React.Fragment>
         <Grid className={classes.padding20Desk} item style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <NavLink activeClassName={"selected"} exact to="/" style={{ color: '#FFF' }} onClick={() => handleChange(0)}>
+          <NavLink activeClassName={"selected"} exact to="/usuarios" style={{ color: '#FFF' }} onClick={() => handleChange(0)}>
             <Typography>Usuarios</Typography>
           </NavLink>
         </Grid>

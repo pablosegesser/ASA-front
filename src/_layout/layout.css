@@ -1,0 +1,69 @@
+.buttons {
+    background: #0FC42D ;
+    border-radius: 20px;
+    opacity: 1;
+}
+
+.cards{
+    width: 18rem;
+}
+
+.logo {
+    max-width: 100%;
+    min-height: 10px;
+    max-height: 100px;
+    padding: 10px;
+}
+button:focus{
+    outline: none !important;
+}
+
+.sidebar {
+    margin-top: 10%;
+    margin-left: 5%;
+    position:fixed;
+	z-index:1000;
+}
+
+.footer {
+    background-position: center center;
+    background-color: #222;
+    background-repeat: no-repeat;
+    width: 100%;
+    min-height: 300px;
+  }
+
+  .badge{
+    background: #0FC42D ;
+  }
+  .carousel{
+    margin: 0 auto;
+  }
+  /* .MuiButton-contained:hover{
+      background-color: #0FC42D !important;
+      color:#fff !important;
+     
+      
+  }
+ .MuiButtonBase-root:hover{
+    background-color: #0FC42D !important;
+    color:#fff !important;
+   
+    
+}*/
+  
+  
+  .MuiFormLabel-root.Mui-focused {
+    color: #0FC42D !important;
+  }
+  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color:#0FC42D !important;
+  }
+  @media (max-width:768px){
+    .logo {
+        max-width:60px;
+        
+        max-height: auto;
+        padding: 0px;
+    }
+  }

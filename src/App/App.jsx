@@ -9,6 +9,7 @@ import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
 import { champsPage } from '../ChampsPage';
 import MainContainer from '../_layout/MainContainer'
+import { UsersPage } from '../UsersPage/UsersPage';
 
 function App() {
     const loggingIn = useSelector(state => state.authentication); 
@@ -30,14 +31,16 @@ if(loggingIn !== undefined && loggingIn !== ''){
         <div>
                    
                     <Router history={history}>
+                   
+                   
+                    <MainContainer loggedIn={loggingIn.loggedIn}>
                     {alert.message &&
                         <div className={`alert ${alert.type}`}>{alert.message}</div>
                     }
-                   
-                    <MainContainer loggedIn={loggingIn.loggedIn}>
                         <Switch>
                             <PrivateRoute exact path="/" component={HomePage} />
                             <PrivateRoute exact path="/campeonatos" component={champsPage} />
+                            <PrivateRoute exact path="/usuarios" component={UsersPage} />
                             <Route path="/login" component={LoginPage} />
                             <Route path="/register" component={RegisterPage} />
                             <Redirect from="*" to="/" />

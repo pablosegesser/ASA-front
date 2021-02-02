@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector, connect } from 'react-redux';
 import {alertActions} from '../_actions/alert.actions'
@@ -27,12 +27,11 @@ import {
   import DateFnsUtils from '@date-io/date-fns';
   import { es } from "date-fns/locale";
   import moment from 'moment';
-  import {ChampsTest} from './ChampsTest';
 
 
 
 
-export const champsPage = () => {
+export const ChampsTest = () => {
     const users = useSelector(state => state.users);
     const campeonatos = useSelector(state => state.campeonatos);
     const user = useSelector(state => state.authentication.user);
@@ -80,8 +79,10 @@ export const champsPage = () => {
     const [suscribed, setSuscribed] = useState();
 
     useEffect(() => {
+
+        
+
         getAlllChamps();
-        getAlll();
         setInscripto({
             nombre: user.firstName,
             apellido: user.lastName,
@@ -237,7 +238,7 @@ const refresh = () =>{
     dispatch(campeonatosActions.register(champ));
  }
  const updateChamps = (champ)=>{
-     dispatch(campeonatosActions.update_user(champ));
+      dispatch(campeonatosActions.update_user(champ));
  }
 
  const handleChangeChamps = (e) =>{
@@ -286,6 +287,8 @@ const refresh = () =>{
 
     
  }
+
+
  const useStyles = makeStyles((theme) => ({
     sliderSection: {
       height:550, 
@@ -344,25 +347,57 @@ const [subcatIns,setSubcatIns] = useState({
     inscriptos:[]
 });
 
-const handleSuscribeSub = (champ,subcate,genero)=>{
 
-        const subcatArray =champ.subcategorias.slice();   
+const setInscriptoss = (arr,gen,name)=>{
+    setSubcatIns({
+        ...subcatIns,
+        nombre: name,
+        genero: gen,
+        inscriptos: arr
+    }, );
+}
+
+const updateNow = (champ,i)=>{
+    updateChamps({
+        subcategorias:subcatIns,
+        id:champ.id
+    });
+}
+const fireClick = (e)=>{
+    e.preventDefault();
+    updateNow(champ)
+}
+const handleSuscribeSub =(champ,subcate,genero,index)=>{
+
+    const subcatArray =champ.subcategorias.slice();   
        for(var i = 0; i < subcatArray.length; i++) {  
-               if (subcatArray[i].nombre == subcate) {
-                const inscriptosArray =subcatArray[i].inscriptos.slice();      
-                inscriptosArray.push(inscripto);
-                setSubcatIns({
-                    nombre: subcate,
-                    genero: genero,
-                    inscriptos: inscriptosArray
-                })
-                updateChamps({
-                    subcategorias: subcatIns,
-                    id:champ.id
-                })
+               if (subcatArray[i].nombre == subcate && subcatArray[i].genero == genero) {
+                const inscriptosArray =subcatArray[i].inscriptos.slice();
+                let found = false;
+                for(var u =0; u < inscriptosArray.length;u++){
+                    if(inscriptosArray[u].nombre == inscripto.nombre && inscriptosArray[u].apellido == inscripto.apellido){
+                        dispatch(alertActions.error('Ya existe un usuario inscripto con el mismo nombre y apellido'));
+                        found = true;
+                        break;
+                    }
+                }
                 
-                   }else{
-                    dispatch(alertActions.error('No existe una categoria con ese nombre'));
+                if(!found){
+                    inscriptosArray.push(inscripto);
+                    if(index == i){
+                        console.log('for innecesario!!!');
+                    }
+                    subcatArray[i].inscriptos = inscriptosArray;
+                    updateChamps({
+                        subcategorias:subcatArray,
+                        id:champ.id
+                    });
+                    const visible1 = JSON.stringify(subcatArray);
+                    const visible12 = JSON.stringify(inscriptosArray);
+                    console.log('inscriptos en '+ champ.nombre+': '+visible12+' y sus subcategoria son '+visible1)
+                   
+                }
+               
                    }
            } 
       
@@ -375,6 +410,47 @@ const handleSuscribeSub = (champ,subcate,genero)=>{
     
    
 }
+const handleSuscribeSub1 =(champ,subcate,genero,index)=>{
+
+    const subcatArray =champ.subcategorias.slice();     
+               if (subcatArray[index].nombre == subcate) {
+                const inscriptosArray =subcatArray[index].inscriptos.slice();      
+                inscriptosArray.push(inscripto);
+                setSubcatIns({
+                    ...subcatIns,
+                    nombre: subcate,
+                    genero: genero,
+                    inscriptos: inscriptosArray
+                });
+                updateChamps({
+                    subcategorias:[...champ.subcategorias, subcatIns],
+                    id:champ.id
+                });
+                const visible1 = JSON.stringify(subcatIns);
+                console.log('inscriptos en '+champ.nombre+' '+visible1)
+                
+                   }else{
+                    dispatch(alertActions.error('No existe una categoria con ese nombre'));
+                   }
+           
+      
+       
+     const visible = JSON.stringify(inscripto);
+      console.log('inscripto '+visible);
+      setTimeout(() => {    
+       getAlllChamps();
+     }, 300);
+    
+   
+}
+
+
+const handleSetSubcat = (champ)=>{
+
+
+}
+
+
  const handleAddSubCategory = (champ,subcatName,subcatGenere)=>{
 
 let name = subcatName;
@@ -391,7 +467,7 @@ if(name !== '' && genere !== ''){
         const subcatArray =champ.subcategorias.slice();
         let found = false;   
        for(var i = 0; i < subcatArray.length; i++) {  
-               if (subcatArray[i].nombre == subcatName) {
+               if (subcatArray[i].nombre == subcatName && subcatArray[i].genero == subcatGenere) {
                    dispatch(alertActions.error('Ya existe una subcategoria con ese nombre'));
                    found= true;
                    break;
@@ -418,6 +494,7 @@ if(name !== '' && genere !== ''){
 
  const classes = useStyles();
  const dimensions = GetDimensions();
+
  const deleteIncripcion = (id, champ)=>{
     console.log('user '+id);
 
@@ -434,6 +511,26 @@ if(name !== '' && genere !== ''){
     getAlll();
   }, 300);
  }
+
+ const deleteIncripcionSub = (id, champ,index)=>{
+    console.log('user '+id);
+    const subcatArray = champ.subcategorias.slice();
+    const inscriptosArray =champ.subcategorias[index].inscriptos.slice();
+    const filtradoArray = inscriptosArray.filter( ins => ins.id !== id);
+
+    subcatArray[index].inscriptos=filtradoArray;
+   updateChamps({
+       subcategorias:subcatArray,
+       id: champ.id
+   })
+   console.log('quitar inscripcion '+inscripto);
+   setTimeout(() => {    
+    getAlllChamps();
+  }, 300);
+ }
+
+
+
 const [date, setDate] = useState(new Date());
 
  const renderSelections = () => {
@@ -451,178 +548,157 @@ const [date, setDate] = useState(new Date());
       const length = campeonatos.items.length;
       console.log('lenght '+length);
   }
-  const [detaills, setDetaill] = useState(false);
-
-
  
 
+const onchangeSubcat = (e)=>{
+let name = e.target.name;
+let value = e.target.value;
+setSubcat({...subcat,
+[name]: value
+});
 
-  
-    return (
-        <Grid container className={classes.paddLeft}>
-                <h3>Todos los Campeonatos:</h3>
-                
-                <CarouselProvider
-              naturalSlideWidth={260}
-              naturalSlideHeight={500}
-              totalSlides={campeonatos.items ? campeonatos.items.length: ''}
-              visibleSlides={dimensions >= 768 ? 3 : 1}
-             
-            >
-           
-           {campeonatos.loading && <em>Loading champs...</em>}
-            {campeonatos.error && <span className="text-danger">ERROR: {campeonatos.error}</span>}
-            {loading ? <em>Loading champs...</em> : ''}
-
-              {campeonatos.items &&
-                   <Slider className={classes.sliderSection}>
-                    {campeonatos.items.map((user, index) =>
-                        <Slide key={user.id}>
-                          <ChampCard champ={user} />
-                          {user.deleting ? <em> - Deleting...</em>
-                            : user.deleteError ? <span className="text-danger"> - ERROR: {user.deleteError}</span>
-                            : <div><span><a onClick={() => handleDeleteChamp(user.id)} className="text-primary">Borrar</a></span><span> - <a onClick={() => handleEditChamp(user,index)} className="text-primary">Edit</a></span></div>}
-                            
-                        </Slide>
-                    
-                    )}
-
-                </Slider>
-                
-                
-            }
-                
-                 
-              
-              <Grid container direction={"row"} justify={"space-between"}>
-                <ButtonBack style={{border:"1px solid #0FC42D", borderRadius: 20, height: 50, width: 50}}> <ArrowLeft style={{color:"#0FC42D", fontSize: 25}}/> </ButtonBack>
-                <ButtonNext style={{border:"1px solid #0FC42D", borderRadius: 20, height: 50, width: 50}}> <ArrowRight style={{color:"#0FC42D", fontSize: 25}} /> </ButtonNext>
-              </Grid>
-            </CarouselProvider>
-            <Grid container>
-         <Grid item xs={12}>
-             <Typography variant="h5">ADMIN PANEL <br /> si estas viendo esto eres Administrador del sitio</Typography>
-            <Grid item>
-            <Button variant="contained" color="primary" onClick={openAdding}>Agregar +</Button>
-            </Grid>
-           
-           
-               {openAdd == true && 
-
-                <Grid item xs={12}>
-                    <h3>Agregando Campeonato...</h3>
-                    <form onSubmit={handleSubmitChampsNew}>
-                        <div className="form-group">
-                        <label>Nombre</label>
-                        <input type="text" name="nombre" onChange={handleChangeChamps}  className="form-control"></input>
-                        </div>
-                        <div className="form-group">
-                        <label>Fecha</label>
-                        <input type="text" name="fecha" onChange={handleChangeChamps}  className="form-control"></input>
-                        </div>
-                        <div className="form-group">
-                        <label>Lugar</label>
-                        <input type="text" name="lugar" onChange={handleChangeChamps}  className="form-control"></input><br></br>
-                        </div>
-                        <div className="form-group">
-                        <label>Descripcion</label>
-                        <input type="text" name="descripcion" onChange={handleChangeChamps} className="form-control"></input><br></br>
-                        </div>
-                        <div className="form-group">
-                        <label>Categoria</label>
-                        <input type="text" name="categoria" onChange={handleChangeChamps} className="form-control"></input><br></br>
-                        </div>
-                        <div className="form-group">
-                        <label>Genero</label>
-                        <input type="text" name="genero" onChange={handleChangeChamps} className="form-control"></input><br></br>
-                        </div>
-                        <div className="form-group">
-                        <label>Fecha hasta</label>
-                        <input type="date" name="fechaHasta" onChange={handleChangeChamps} className="form-control"></input><br></br>
-                        </div>
-                        <div className="form-group">
-                        <label>Precio</label>
-                        <input type="number" name="precio" onChange={handleChangeChamps} className="form-control"></input><br></br>
-                        </div>
-                        <div className="form-group">
-                        <label>Url de Imagen</label>
-                        <input type="text" name="image" onChange={handleChangeChamps} className="form-control"></input><br></br>
-                        </div>
-                        <button onClick={handleClosingAdd} className="btn btn-primary" style={{margin: "10px"}}>Cancel</button>        
-                        <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
-                        
-                        </form>
-                </Grid>
-                        }
-                        {campeonatos.items &&
-                                    <Grid item className="col-lg-4 offset-lg-4">
-                                    {campeonatos.items.map((user, index) =>
-                                    <div key={user.id}>
-                                            {editchamp.open == true && editchamp.id == user.id &&
-                                        <div>
-                                             <h3>Editando... {user.nombre}</h3>
-                                        <form onSubmit={handleSubmitChampsUpdate}>
-                                        <div className="form-group">
-                                        <label>Nombre</label>
-                                        <input type="text" name="nombre" onChange={handleChangeChampsUpdate} defaultValue={user.nombre} className="form-control"></input>
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Fecha</label>
-                                        <input type="text" name="fecha" onChange={handleChangeChampsUpdate} defaultValue={user.fecha} className="form-control"></input>
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Lugar</label>
-                                        <input type="text" name="lugar" onChange={handleChangeChampsUpdate} defaultValue={user.lugar} className="form-control"></input><br></br>
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Descripcion</label>
-                                        <input type="text" name="descripcion" onChange={handleChangeChampsUpdate} defaultValue={user.descripcion} className="form-control"></input><br></br>
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Categoria</label>
-                                        <input type="text" name="categoria" onChange={handleChangeChampsUpdate} defaultValue={user.categoria} className="form-control"></input><br></br>
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Genero</label>
-                                        <input type="text" name="genero" onChange={handleChangeChampsUpdate} defaultValue={user.genero} className="form-control"></input><br></br>
-                                       
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Fecha hasta</label>
-                                        <input type="date" name="fechaHasta" onChange={handleChangeChampsUpdate} defaultValue={moment(user.fechaHasta).format('DD-MM-YYYY')} className="form-control"></input><br></br>
-                                       
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Precio</label>
-                                        <input type="number" name="precio" onChange={handleChangeChampsUpdate} defaultValue={user.precio} className="form-control"></input><br></br>
-                                        </div>
-                                        <div className="form-group">
-                                        <label>Url de Imagen</label>
-                                        <input type="text" name="image" onChange={handleChangeChampsUpdate} defaultValue={user.image} className="form-control"></input><br></br>
-                                        </div>
-                                        <button onClick={handleClosing} className="btn btn-primary" style={{margin: "10px"}}>Cancel</button>        
-                                        <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
-                                        
-                                        </form>
-                                        
-                                        </div>
-                                    
-                                        }
-                                        </div>
-                                            
-                                    
-                                    )}
-                               </Grid>
-                  
-                    
-                        }
-
-
-         </Grid>
-     </Grid>
-   
-          <ChampsTest />
-        </Grid>
-       
-    )
 }
+
+const handleSubmitSubCat = (e)=>{
+    e.preventDefault();
+    if(subcat.nombre !== '' && subcat.genero !== ''){
+        updateChamps({ ...champs,
+            subcategorias: subcat
+            });
+    }
+
+}
+ 
+return (
+<Fragment>
+     {campeonatos.loading && <em>Loading champs...</em>}
+     {campeonatos.error && <span className="text-danger">ERROR: {campeonatos.error}</span>}
+     {loading ? <em>Loading champs...</em> : ''}
+     {campeonatos.items &&
+         <ul>
+             {campeonatos.items.map((user, index) =>
+                 <li key={user.id}>
+                     {'Campeonato: '+user.nombre + ' ' + user.fecha + ' ' + user.lugar}
+                     <ul>
+                         {user.subcategorias.map((subcat, index1)=>
+                          <li key={subcat._id}>
+                              {'Subcategoria: '+subcat.nombre+' '+subcat.genero}
+                                 {subcat.inscriptos.map((insub)=>
+                                 <div key={insub._id}>
+                                 <p>{'Inscripto: '+insub.nombre + ' '+ insub.apellido + ' ' + insub.edad + ' '+ insub.id }</p>
+                                 {userCurrent.id == insub.id ? <button className="btn btn-primary" onClick={()=>deleteIncripcionSub(inscripto.id, user,index1)}>Quitar inscripción</button> : ''}
+                                 </div>
+                                 
+                                 )}
+                                 
+                                 <span><a onClick={() => handleSuscribeSub(user,subcat.nombre, subcat.genero,index1)} className="text-primary">Inscribirse</a></span>
+                                    
+                          
+                          </li>
+                          
+                           
+                         
+                         )}
+                           <div>
+                               
+                               <div className="form-group">
+                                   <label>Nombre</label>
+                                   <input type="text" name="nombre" onChange={onchangeSubcat} className="form-control"></input>
+                               </div>
+                               <div className="form-group">
+                                   <label>Genero</label><br/>
+                                   <span>Masculino <input type="radio" name="genero" onChange={onchangeSubcat}  value="masc" ></input></span>
+                                   <span> Femenino  <input type="radio" name="genero" onChange={onchangeSubcat}  value="fem" ></input></span>
+                               
+                               </div>
+                           
+                           
+                       </div>
+
+                     <button className="btn btn-primary" onClick={()=>handleAddSubCategory(user,subcat.nombre,subcat.genero)}>ADD SUBCATEGORY</button>
+                   
+                     </ul>
+                     <div>ID: {user.id}</div>
+                     {
+                         user.deleting ? <em> - Deleting...</em>
+                         : user.deleteError ? <span className="text-danger"> - ERROR: {user.deleteError}</span>
+                         : <div><span> - <a onClick={() => handleDeleteChamp(user.id)} className="text-primary">Delete</a></span> <span> - <a onClick={() => handleEditChamp(user)} className="text-primary">Edit</a></span> </div>
+                     }
+                      {editchamp.open && editchamp.id == user.id &&
+             
+                 <div>
+                 
+                 <form onSubmit={handleSubmitChampsUpdate}>
+                 <div className="form-group">
+                 <label>Nombre</label>
+                 <input type="text" name="nombre" onChange={handleChangeChampsUpdate} defaultValue={user.nombre} className="form-control"></input>
+                 </div>
+                 <div className="form-group">
+                 <label>Fecha</label>
+                 <input type="text" name="fecha" onChange={handleChangeChampsUpdate} defaultValue={user.fecha} className="form-control"></input>
+                 </div>
+                 <div className="form-group">
+                 <label>Lugar</label>
+                 <input type="text" name="lugar" onChange={handleChangeChampsUpdate} defaultValue={user.lugar} className="form-control"></input><br></br>
+                 </div>
+                 <div className="form-group">
+                 <label>Descripcion</label>
+                 <input type="text" name="descripcion" onChange={handleChangeChampsUpdate} defaultValue={user.descripcion} className="form-control"></input><br></br>
+                 </div>
+                 <button onClick={close} className="btn btn-primary" style={{margin: "10px"}}>Cancel</button>        
+                 <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
+                 
+                 </form>
+                 
+                 </div>
+             
+                 }
+                 </li>
+                     
+                 
+             )}
+
+            
+             </ul>
+     }
+        <Grid item>
+        <Button className="btn btn-primary" onClick={openAdding}>Agregar +</Button>
+        </Grid>
+        
+        
+            {openAdd && 
+                 <form onSubmit={handleSubmitChampsNew}>
+                 <div className="form-group">
+                 <label>Nombre</label>
+                 <input type="text" name="nombre" onChange={handleChangeChamps}  className="form-control"></input>
+                 </div>
+                 <div className="form-group">
+                 <label>Fecha</label>
+                 <input type="text" name="fecha" onChange={handleChangeChamps}  className="form-control"></input>
+                 </div>
+                 <div className="form-group">
+                 <label>Lugar</label>
+                 <input type="text" name="lugar" onChange={handleChangeChamps}  className="form-control"></input><br></br>
+                 </div>
+                 <div className="form-group">
+                 <label>Descripcion</label>
+                 <input type="text" name="descripcion" onChange={handleChangeChamps}  className="form-control"></input><br></br>
+                 </div>
+                 <button onClick={close} className="btn btn-primary" style={{margin: "10px"}}>Cancel</button>        
+                 <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
+                 
+                 </form>}
+                
+
+                 <Dialog>
+                    <DialogContent>
+                        <Grid>
+                            <Typography>¿Seguro que quiere inscribirse en este campeonato?</Typography>
+                            <Button>SI</Button><Button>NO</Button>
+                        </Grid>
+                    </DialogContent>
+                 </Dialog>
+
+                 </Fragment>
+)}                  
+    

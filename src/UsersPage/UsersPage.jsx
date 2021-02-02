@@ -5,7 +5,7 @@ import {alertActions} from '../_actions/alert.actions'
 import { userActions } from '../_actions';
 import {campeonatosActions} from '../_actions/campeonatos.actions';
 
-function HomePage() {
+function UsersPage() {
    
     const users = useSelector(state => state.users);
     const campeonatos = useSelector(state => state.campeonatos);
@@ -282,11 +282,9 @@ const refresh = () =>{
  }
     return (
         <div className="col-lg-8 offset-lg-2">
-            <h1>Hola {user.firstName}!</h1>
-            <p>Estás logueado en la App</p>
            
             
-            {/*<h1>USERS</h1>
+            <h1>USERS</h1>
             <form onSubmit={submitSearch}>
                             <div className="form-group">
                                 <label>Buscar por ID</label>
@@ -355,11 +353,11 @@ const refresh = () =>{
             }
             <p>
                 <Link to="/login">Logout</Link>
-            </p>*/}
+            </p>
         </div>
     );
 }
 
 
   
-  export {HomePage};
+  export {UsersPage};
