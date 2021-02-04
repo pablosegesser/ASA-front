@@ -51,6 +51,24 @@ const useStyles = makeStyles((theme) =>({
         fontSize: "16px",
         fontWeight: "bold",
         padding: "4px"
+    },
+    boxSubcat:{
+        border:"1px solid #ccc",
+        padding: 3,
+        backgroundColor: "#019DF4",
+        width:"48%",
+        float:"left",
+        margin:"0.5%",
+        boxShadow:"0 4px 4px 0 rgb(0 0 0 / 25%)",
+        borderRadius:10
+    },
+    textSubcat:{
+        fontSize:12,
+        color:"#fff",
+        marginBottom: "0px"
+    },
+    ".boxSubcat p":{
+       marginBottom: "0px !important"
     }
     
     
@@ -107,11 +125,11 @@ export const ChampDetaills = ({champ}) => {
     const [suscribed, setSuscribed] = useState();
 
     useEffect(() => {
-        handleCheckSuscription(champ);
+       
         setInscripto({
             nombre: user.firstName,
             apellido: user.lastName,
-            edad: 20,
+            edad: _calculateAge(new Date(user.dateOfBirth)),
             id: user.id
         });
     }, []);
@@ -350,15 +368,54 @@ const refresh = () =>{
     }
    
 }
-const handleAddSubCategory = ()=>{
-    
+const [subcat,setSubcat] = useState({
+    nombre:'',
+    genero:'',
+    inscriptos:[]
+});
+const handleAddSubCategory = (champ,subcatName,subcatGenere)=>{
 
-}
+    let name = subcatName;
+    let genere = subcatGenere
+    if(name !== '' && genere !== ''){
+    
+        setSubcat({ ...subcat,
+            nombre: subcatName,
+            genero: subcatGenere
+        })   
+    
+    
+        if(subcat.nombre !== '' && subcat.genero !== ''){
+            const subcatArray =champ.subcategorias.slice();
+            let found = false;   
+           for(var i = 0; i < subcatArray.length; i++) {  
+                   if (subcatArray[i].nombre == subcatName && subcatArray[i].genero == subcatGenere) {
+                       dispatch(alertActions.error('Ya existe una subcategoria con ese nombre'));
+                       found= true;
+                       break;
+                       }
+               } 
+           if(!found){
+               subcatArray.push(subcat);
+               updateChamps({
+                   subcategorias:subcatArray,
+                   id: champ.id
+               });
+               }
+           
+         const visible = JSON.stringify(subcat);
+          console.log('subcategory '+visible);
+          setTimeout(() => {    
+           getAlllChamps();
+         }, 300);
+        }
+       }
+    }
  const [suscribed1, setSuscribed1] = useState(false);
 
  const handleCheckSuscription = (champ)=>{
     if(userCurrent.nombre !== '' && userCurrent.apellido !== '' && userCurrent.edad !== ''){
-        const inscriptosArray =champ.inscriptos.slice();   
+        const inscriptosArray =champ.subcategorias.slice();   
        for(var i = 0; i < inscriptosArray.length; i++) {  
                if (inscriptosArray[i].id == userCurrent.id) {
                   // dispatch(alertActions.error('Ya existe inscripto con ese nombre y apellido'));
@@ -374,11 +431,11 @@ const handleAddSubCategory = ()=>{
  const deleteIncripcion = (id, champ)=>{
     console.log('user '+id);
 
-    const inscriptosArray =champ.inscriptos.slice();
+    const subcatArray =champ.subcategorias.slice();
     const filtradoArray = inscriptosArray.filter( ins => ins.id !== id);
 
    updateChamps({
-       inscriptos:filtradoArray,
+       subcategorias:filtradoArray,
        id: champ.id
    })
    console.log('inscripto '+inscripto);
@@ -406,21 +463,130 @@ const handleAddSubCategory = ()=>{
       };
 
       const [openDialog, setOpenDialog] = useState(false);
+
+      const [idIns, setIdIns] = useState(0);
       const handleClose = () =>{
           setOpenDialog(!openDialog);
       }
-      const handleOpen = () =>{
+      const handleOpen = (index1) =>{
           setOpenDialog(!openDialog);
+          setIdIns(index1);
+          console.log('id inscriptos '+idIns);
       }
-      
+     
+      const onchangeSubcat = (e)=>{
+        let name = e.target.name;
+        let value = e.target.value;
+        setSubcat({...subcat,
+        [name]: value
+        });
+        
+        }
+
+        const handleSubmitNewSubcat = (e)=>{
+            e.preventDefault();
+            handleAddSubCategory()
+        }
+        const [suscribedSubcat, setsuscribedSubcat] = useState(true);
+        const handleSuscribeSub =(champ,subcate,genero,index,edad)=>{
+            if(edad == undefined || inscripto.edad<=edad){
+            const subcatArray =champ.subcategorias.slice();   
+               for(var i = 0; i < subcatArray.length; i++) {  
+                       if (subcatArray[i].nombre == subcate && subcatArray[i].genero == genero) {
+                        const inscriptosArray =subcatArray[i].inscriptos.slice();
+                        let found = false;
+                        for(var u =0; u < inscriptosArray.length;u++){
+                            if(inscriptosArray[u].nombre == inscripto.nombre && inscriptosArray[u].apellido == inscripto.apellido){
+                                dispatch(alertActions.error('Ya existe un usuario inscripto con el mismo nombre y apellido'));
+                                found = true;
+                                setsuscribedSubcat(!suscribedSubcat)
+                                break;
+                            }
+                        }
+                        
+                        if(!found){
+                            inscriptosArray.push(inscripto);
+                            if(index == i){
+                                console.log('for innecesario!!!');
+                            }
+                            subcatArray[i].inscriptos = inscriptosArray;
+                            updateChamps({
+                                subcategorias:subcatArray,
+                                id:champ.id
+                            });
+                            const visible1 = JSON.stringify(subcatArray);
+                            const visible12 = JSON.stringify(inscriptosArray);
+                            console.log('inscriptos en '+ champ.nombre+': '+visible12+' y sus subcategoria son '+visible1)
+                           
+                        }
+                       
+                           }
+                   } 
+              
+               
+             const visible = JSON.stringify(inscripto);
+              console.log('inscripto '+visible);
+              setTimeout(() => {    
+               getAlllChamps();
+             }, 300);
+            
+            }else{
+                dispatch(alertActions.error('Superas la edad para inscribirte en este campeonato'));
+                return;
+            }
+        }
+        const handleCheckSuscriptionSubcat = (arr,id)=>{
+            let found = false;
+            const inscriptosArray = arr.slice();
+            for(var i =0;i< inscriptosArray.length;i++){
+                if(inscriptosArray[i].id == id){
+                    found =true
+                }
+            }
+            if(found){
+                return true
+            }else{
+                return false
+            }
+
+
+        }
+
+        const deleteIncripcionSub = (id, champ,index)=>{
+            console.log('user '+id);
+            const subcatArray = champ.subcategorias.slice();
+            const inscriptosArray =champ.subcategorias[index].inscriptos.slice();
+            const filtradoArray = inscriptosArray.filter( ins => ins.id !== id);
+        
+            subcatArray[index].inscriptos=filtradoArray;
+           updateChamps({
+               subcategorias:subcatArray,
+               id: champ.id
+           })
+           console.log('quitar inscripcion '+inscripto);
+           setTimeout(() => {    
+            getAlllChamps();
+          }, 300);
+         }
+        
+const [openDialogUbic, setopenDialogUbic] = useState(false);
+const openUbic =()=>{
+    setopenDialogUbic(!openDialogUbic);
+}
+function _calculateAge(birthday) { // birthday is a date
+    var ageDifMs = Date.now() - birthday.getTime();
+    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
 
     return (
-        <Grid container>
+        <Grid container >
                 <Paper className={classes.paper} elevation={0}>
-                <Grid item xs={12}>
+               
                     <Typography className={classes.title}>Detalles del campeonato</Typography>
-                        <Grid container flex-direction="column" className={classes.center}>
+                        <Grid container flex-direction="row" className={classes.center} >
                         <Grid item xs={12}>
+                            <Grid item xs={12}>
                             <Typography>Nombre: {champ.nombre}</Typography>
                             </Grid>
                             <Grid item xs={12}>
@@ -429,33 +595,34 @@ const handleAddSubCategory = ()=>{
                             <Grid item xs={12}>   
                                 <Typography>Fecha:{champ.fecha}</Typography>   
                             </Grid>
+                        
                             <Grid item xs={12}>
                             <Typography> Descripcion: {champ.descripcion}</Typography>
                             </Grid>
-                          
-                           {suscribed1 ? <Button disabled>Inscripto</Button> :<Button onClick={()=>handleSuscribe(champ)}>Inscribirse</Button>}
-                            <Button onClick={()=>handleOpen(true)}>Ver Inscriptos</Button>
-
-                                        <h3>Ubicacion</h3>
-                            <div style={{ height: '40vh', width: '100%' }}>
-                                <GoogleMapReact
-                                bootstrapURLKeys={{ key: 'AIzaSyB82FFgUCUaHMb1Seaot3aNM8iZoO0RHEk' }}
-                                defaultCenter={props.center}
-                                defaultZoom={props.zoom}
-                                >
-                                <AnyReactComponent
-                                    lat={59.955413}
-                                    lng={30.337844}
-                                    text="X"
-                                />
-                                </GoogleMapReact>
-                            </div>
+                           <Button onClick={()=>openUbic()}>Ver Ubicacion</Button>
                         </Grid>
-                </Grid>
+                        <Grid item xs={12} style={{paddingBottom:"20px"}}>
+                           
+
+                            <p>Subcategorias</p>
+                                        <Grid item className={classes.contSubcats}>
+                                        {champ.subcategorias.length > 0 ? champ.subcategorias.map((r,index1)=>
+                                                <div className={classes.boxSubcat} key={r._id}>
+                                                    <p className={classes.textSubcat}>{r.nombre+' '+r.genero}  {r.edadMax && <span className={classes.textSubcat}>Max {r.edadMax} años</span>}</p>
+                                                   
+                                                    {!handleCheckSuscriptionSubcat(r.inscriptos, inscripto.id) ? <span><a onClick={() => handleSuscribeSub(champ,r.nombre, r.genero,index1,r.edadMax)} className="text-primary">Inscribirse</a></span>
+                                                    : <span><a  className="disabled">Inscripto</a></span>}
+                                                     <Button onClick={()=>handleOpen(index1)}>Ver Inscriptos</Button>
+                                                </div>) : <p>NO TIENE SUBCATEGORIAS</p>}
+                                        </Grid>
+                        </Grid>
+                           
+                        
+                        </Grid>
                 </Paper>
                 <Dialog open={openDialog} onClose={()=>handleClose()}>
                     <DialogTitle>
-                                    Inscriptos
+                                    Inscriptos en categoria: {champ.subcategorias[idIns].nombre+' '+champ.subcategorias[idIns].genero}
                     </DialogTitle>
                     <Divider />
                     <DialogContent>
@@ -472,7 +639,7 @@ const handleAddSubCategory = ()=>{
                                     
                                 </TableHead>
                                 <TableBody>
-                                {champ.inscriptos.map((inscripto)=>
+                                {champ.subcategorias[idIns].inscriptos && champ.subcategorias[idIns].inscriptos.map((inscripto)=>
                                  <TableRow key={inscripto._id}>
                                      <TableCell>
                                      {inscripto.nombre}
@@ -487,7 +654,7 @@ const handleAddSubCategory = ()=>{
                                     {inscripto.id}
                                     </TableCell>*/}
                                     <TableCell>
-                                    {userCurrent.id == inscripto.id ? <button className="btn btn-primary" onClick={()=>deleteIncripcion(inscripto.id, champ)}>Quitar inscripción</button> : ''}
+                                    {userCurrent.id == inscripto.id ? <button className="btn btn-primary" onClick={()=>deleteIncripcionSub(inscripto.id, champ,idIns)}>Quitar inscripción</button> : ''}
                                     </TableCell>
 
                                   
@@ -500,6 +667,31 @@ const handleAddSubCategory = ()=>{
                    
                                
                                 
+                    </DialogContent>
+                </Dialog> 
+
+                <Dialog open={openDialogUbic} onClose={()=>setopenDialogUbic()}>
+                    <DialogTitle>
+                                    Ubicacion Maps
+                    </DialogTitle>
+                    <Divider />
+                    <DialogContent>
+                        <Grid item style={{width:"500px"}}>
+                        <Grid style={{ height: '40vh', width: '100%' }}>
+                                <GoogleMapReact
+                                bootstrapURLKeys={{ key: process.env.MAPS_API_KEY  }}
+                                defaultCenter={props.center}
+                                defaultZoom={props.zoom}
+                                >
+                                <AnyReactComponent
+                                    lat={59.955413}
+                                    lng={30.337844}
+                                    text="X"
+                                />
+                                </GoogleMapReact>
+                            </Grid>               
+                        </Grid>
+                          
                     </DialogContent>
                 </Dialog> 
 

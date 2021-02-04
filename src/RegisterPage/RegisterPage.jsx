@@ -66,6 +66,12 @@ function RegisterPage() {
                         <div className="invalid-feedback">Date of Birth is required</div>
                     }
                 </div>
+                  
+                <div className="form-group">
+                                            <label>Genero</label><br/>
+                                            <span>Masculino <input type="radio" name="genero" onChange={handleChange}  value="masc" ></input></span>
+                                            <span> Femenino  <input type="radio" name="genero" onChange={handleChange}  value="fem" ></input></span>
+                                        </div>
                 <div className="form-group">
                     <label>Password</label>
                     <input type="password" name="password" value={user.password} onChange={handleChange} className={'form-control' + (submitted && !user.password ? ' is-invalid' : '')} />

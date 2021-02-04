@@ -32,7 +32,7 @@ import {
 
 
 
-export const champsPage = () => {
+export const ChampsPage = () => {
     const users = useSelector(state => state.users);
     const campeonatos = useSelector(state => state.campeonatos);
     const user = useSelector(state => state.authentication.user);
@@ -80,14 +80,16 @@ export const champsPage = () => {
     const [suscribed, setSuscribed] = useState();
 
     useEffect(() => {
+       
         getAlllChamps();
         getAlll();
         setInscripto({
             nombre: user.firstName,
             apellido: user.lastName,
-            edad: 20,
+            edad: _calculateAge(new Date(user.dateOfBirth)),
             id: user.id
         });
+        console.log('comun '+userCurrent.dateOfBirth+' format '+moment(userCurrent.dateOfBirth).format('dd/mm/yyyy'));
     }, []);
 
     function getAlllChamps(){
@@ -244,10 +246,15 @@ const refresh = () =>{
     const target = e.target;
     const value = target.value;
     const name = target.name;
-
+    if(arr.length>0){
+        setchampsNew({...champsNew,
+            [name]: value,
+            subcategorias: arr
+          });
+    }else{
     setchampsNew({...champsNew,
       [name]: value
-    });
+    });}
  }
  const handleChangeChampsUpdate = (e) =>{
     const target = e.target;
@@ -272,7 +279,6 @@ const refresh = () =>{
     }
     setTimeout(() => {    
         getAlllChamps();
-        getAlll();
       }, 300);
  }
 
@@ -288,17 +294,36 @@ const refresh = () =>{
  }
  const useStyles = makeStyles((theme) => ({
     sliderSection: {
-      height:550, 
-      width: 1100,
-      [theme.breakpoints.down('sm')]: {
+      height:600, 
+      width: "100%",
+      [theme.breakpoints.down('xs')]: {
         width: 300
       },
       [theme.breakpoints.up(1450)]:{
-        width: 1300
+       // width: 1300
       }
     },
     paddLeft:{
         paddingLeft: 20
+    },
+    boxSubcat:{
+        border:"1px solid #ccc",
+        padding: 10,
+        backgroundColor: "#019DF4",
+        width:"25%",
+        float:"left",
+        textAlign:"center"
+    },
+    textSubcat:{
+        fontSize:12,
+        color:"#000"
+    },
+    contSubcats:{
+        minHeight:"200px",
+        height:"100%"
+    },
+    linkWhite:{
+        color:"#fff"
     }
 }));
 
@@ -375,44 +400,7 @@ const handleSuscribeSub = (champ,subcate,genero)=>{
     
    
 }
- const handleAddSubCategory = (champ,subcatName,subcatGenere)=>{
-
-let name = subcatName;
-let genere = subcatGenere
-if(name !== '' && genere !== ''){
-
-    setSubcat({ ...subcat,
-        nombre: subcatName,
-        genero: subcatGenere
-    })   
-
-
-    if(subcat.nombre !== '' && subcat.genero !== ''){
-        const subcatArray =champ.subcategorias.slice();
-        let found = false;   
-       for(var i = 0; i < subcatArray.length; i++) {  
-               if (subcatArray[i].nombre == subcatName) {
-                   dispatch(alertActions.error('Ya existe una subcategoria con ese nombre'));
-                   found= true;
-                   break;
-                   }
-           } 
-       if(!found){
-           subcatArray.push(subcat);
-           updateChamps({
-               subcategorias:subcatArray,
-               id: champ.id
-           });
-           }
-       
-     const visible = JSON.stringify(subcat);
-      console.log('subcategory '+visible);
-      setTimeout(() => {    
-       getAlllChamps();
-     }, 300);
-    }
-   }
-}
+ 
 
 
 
@@ -454,19 +442,175 @@ const [date, setDate] = useState(new Date());
   const [detaills, setDetaill] = useState(false);
 
 
- 
+  const handleAddSubCategory = (champ,subcatName,subcatGenere)=>{
+
+    let name = subcatName;
+    let genere = subcatGenere
+    if(name !== '' && genere !== ''){
+    
+        setSubcat({ ...subcat,
+            nombre: subcatName,
+            genero: subcatGenere
+        })   
+    
+    
+        if(subcat.nombre !== '' && subcat.genero !== ''){
+            const subcatArray =champ.subcategorias.slice();
+            let found = false;   
+           for(var i = 0; i < subcatArray.length; i++) {  
+                   if (subcatArray[i].nombre == subcatName && subcatArray[i].genero == subcatGenere) {
+                       dispatch(alertActions.error('Ya existe una subcategoria con ese nombre'));
+                       found= true;
+                       break;
+                       }
+               } 
+           if(!found){
+               subcatArray.push(subcat);
+               updateChamps({
+                   subcategorias:subcatArray,
+                   id: champ.id
+               });
+               }
+           
+         const visible = JSON.stringify(subcat);
+          console.log('subcategory '+visible);
+          setTimeout(() => {    
+           getAlllChamps();
+         }, 300);
+        }
+       }
+    }
+
+    const handleDeleteSubCategory = (champ,subcatName,subcatGenere)=>{
+
+        let name = subcatName;
+        let genere = subcatGenere
+        if(name !== '' && genere !== ''){
+         
+                const subcatArray =champ.subcategorias.slice();  
+               for(var i = 0; i < subcatArray.length; i++) {  
+                       if (subcatArray[i].nombre == subcatName && subcatArray[i].genero == subcatGenere) {
+                       const subcatArrayFiltered= subcatArray.splice(i,1)
+                        updateChamps({
+                            subcategorias:subcatArray,
+                            id: champ.id
+                        });
+                           break;
+                           }
+                   } 
+             
+               
+             const visible = JSON.stringify(subcat);
+              console.log('subcategory '+visible);
+              setTimeout(() => {    
+               getAlllChamps();
+             }, 300);
+            
+           }
+        }
 
 
+const onchangeSubcat = (e)=>{
+    let name = e.target.name;
+    let value = e.target.value;
+    setSubcat({...subcat,
+    [name]: value
+    });
+    
+    }
+
+    const [arr, setarr] = useState([]);
+    const [arrbefore, setarrbefore] = useState({});
+
+    const handleAddArr = (e)=>{
+        let name = e.target.name;
+        let value = e.target.value;
+            setarrbefore({...arrbefore,
+                [name]: value
+            });
+        
+
+    }
+    const clearInputSubcatArr = ()=>{
+
+    }
+    const handleAddSubcatArr = ()=>{
+
+        if(arrbefore.nombre !== '' && arrbefore.genero !== '' && arrbefore.nombre !== undefined && arrbefore.genero !== undefined){
+            if(arr.length>0){
+                let arrSlice = arr.slice();
+                let found =false;
+                for(var i=0;i<arrSlice.length;i++){
+                   
+                    if(arrSlice[i].nombre == arrbefore.nombre && arrSlice[i].genero == arrbefore.genero){
+                        dispatch(alertActions.error('Ya hay una subcategoria con ese nombre y genero'));
+                        found = true;
+                        return;
+                    }
+                }
+               if(!found){
+                setarr([...arr, arrbefore]);
+               }
+                
+               return;
+            }
+
+            setarr([...arr, arrbefore]);
+        }else{
+            dispatch(alertActions.error('Debe agregar todos los campos'))
+        }
+      
+    }
+
+    const handleDeleteArr = (nombre,genero) =>{
+
+        if(nombre !== '' && genero !==''){
+
+            if(arr.length>0){
+                let arrSlice = arr.slice();
+                for(var i=0;i< arrSlice.length;i++){
+                    if(arrSlice[i].nombre == nombre && arrSlice[i].genero == genero){
+                        const visible = JSON.stringify(arrSlice[i]);
+                        console.log('encontro'+visible);
+                        const arrFilterd = arrSlice.filter(r=> r.nombre !== nombre && r.genero !== genero);
+                        const arrRemoved = arr.splice(i,1);
+                        const visible1 = JSON.stringify(arrFilterd);
+                        console.log('filtrado '+visible1);
+                        const visible11 = JSON.stringify(arrRemoved);
+                        console.log('removed '+visible11);
+                        setarr(arr);
+                        getAlllChamps()
+                       
+                    }
+                }
+            }
+        }
+    }
+    
+
+    function _calculateAge(birthday) { // birthday is a date
+        var ageDifMs = Date.now() - birthday.getTime();
+        var ageDate = new Date(ageDifMs); // miliseconds from epoch
+        return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
   
     return (
         <Grid container className={classes.paddLeft}>
-                <h3>Todos los Campeonatos:</h3>
+
+
+
+           
+        <Grid item xs={12}>
+            <Grid>
+            <Typography variant="h3">Todos los Campeonatos:</Typography>
+            </Grid>
+               
                 
                 <CarouselProvider
               naturalSlideWidth={260}
               naturalSlideHeight={500}
               totalSlides={campeonatos.items ? campeonatos.items.length: ''}
-              visibleSlides={dimensions >= 768 ? 3 : 1}
+              visibleSlides={dimensions >=768 ? 2 : 1}
              
             >
            
@@ -495,10 +639,11 @@ const [date, setDate] = useState(new Date());
                  
               
               <Grid container direction={"row"} justify={"space-between"}>
-                <ButtonBack style={{border:"1px solid #0FC42D", borderRadius: 20, height: 50, width: 50}}> <ArrowLeft style={{color:"#0FC42D", fontSize: 25}}/> </ButtonBack>
-                <ButtonNext style={{border:"1px solid #0FC42D", borderRadius: 20, height: 50, width: 50}}> <ArrowRight style={{color:"#0FC42D", fontSize: 25}} /> </ButtonNext>
+                <ButtonBack style={{border:"1px solid #019DF4", borderRadius: 20, height: 50, width: 50}}> <ArrowLeft style={{color:"#019DF4", fontSize: 25}}/> </ButtonBack>
+                <ButtonNext style={{border:"1px solid #019DF4", borderRadius: 20, height: 50, width: 50}}> <ArrowRight style={{color:"#019DF4", fontSize: 25}} /> </ButtonNext>
               </Grid>
             </CarouselProvider>
+            </Grid>
             <Grid container>
          <Grid item xs={12}>
              <Typography variant="h5">ADMIN PANEL <br /> si estas viendo esto eres Administrador del sitio</Typography>
@@ -533,6 +678,34 @@ const [date, setDate] = useState(new Date());
                         <input type="text" name="categoria" onChange={handleChangeChamps} className="form-control"></input><br></br>
                         </div>
                         <div className="form-group">
+                        <label>Subcategorias</label>
+                        <Grid item className={classes.contSubcats}>
+                                        {arr.length > 0 ? arr.map((r,index)=>
+                                                <div className={classes.boxSubcat} key={r._id}>
+                                                    <p className={classes.textSubcat}>{r.nombre+' '+r.genero}</p>
+                                                   {r.edadMax && <p className={classes.textSubcat}>Max {r.edadMax} años</p>}
+                                                    <a className="danger" onClick={()=>handleDeleteArr(r.nombre,r.genero)}>Borrar</a>
+                                                </div>) : <p>NO TIENE SUBCATEGORIAS</p>}
+                                        </Grid>
+                                       </div><br/><br/>
+                                       <div className="form-group">
+                                        <p>Nombre</p>
+                                            <input type="text" name="nombre" onChange={handleAddArr} className="form-control"></input>
+                                        
+                                        <Grid className="form-group">
+                                            <label>Genero</label><br/>
+                                            <span>Masculino <input type="radio" name="genero" onChange={handleAddArr}  value="masc" ></input></span>
+                                            <span> Femenino  <input type="radio" name="genero" onChange={handleAddArr}  value="fem" ></input></span>
+                                            <span> Mixto  <input type="radio" name="genero" onChange={handleAddArr}  value="mixto" ></input></span>
+                                        </Grid>
+                                        <Grid className="form-group">
+                                            <label>Edad máxima</label>
+                                            <input type="number" name="edadMax" onChange={handleAddArr}></input>
+                                        </Grid>
+                                        
+                                    <button className="btn btn-primary" onClick={()=>handleAddSubcatArr()}>AGREGAR SUBCATEGORÍA</button><br></br>
+                        </div>
+                        <div className="form-group">
                         <label>Genero</label>
                         <input type="text" name="genero" onChange={handleChangeChamps} className="form-control"></input><br></br>
                         </div>
@@ -552,13 +725,17 @@ const [date, setDate] = useState(new Date());
                         <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
                         
                         </form>
+
+                       
                 </Grid>
                         }
                         {campeonatos.items &&
-                                    <Grid item className="col-lg-4 offset-lg-4">
+                                    <Grid item xs={12}>
                                     {campeonatos.items.map((user, index) =>
-                                    <div key={user.id}>
-                                            {editchamp.open == true && editchamp.id == user.id &&
+                                    <Grid  container flex-direction="row">
+                                        
+                                        <Grid item xs={6} key={user.id}>
+                                        {editchamp.open == true && editchamp.id == user.id &&
                                         <div>
                                              <h3>Editando... {user.nombre}</h3>
                                         <form onSubmit={handleSubmitChampsUpdate}>
@@ -581,7 +758,35 @@ const [date, setDate] = useState(new Date());
                                         <div className="form-group">
                                         <label>Categoria</label>
                                         <input type="text" name="categoria" onChange={handleChangeChampsUpdate} defaultValue={user.categoria} className="form-control"></input><br></br>
-                                        </div>
+                                        </div><br/><br/>
+                                        <div className="form-group">
+                                        <p>Subcategorias</p>
+                                        <Grid item className={classes.contSubcats}>
+                                        {user.subcategorias.length > 0 ? user.subcategorias.map((r,index)=>
+                                                <div className={classes.boxSubcat} key={r._id}>
+                                                    <p className={classes.textSubcat}>{r.nombre+' '+r.genero}</p>
+                                                    {r.edadMax && <p className={classes.textSubcat}>Max {r.edadMax} años</p>}
+                                                    <a className="danger" onClick={()=>handleDeleteSubCategory(user,r.nombre,r.genero)}>Borrar</a>
+                                                </div>) : <p>NO TIENE SUBCATEGORIAS</p>}
+                                        </Grid>
+                                       </div>
+                                       <div className="form-group">
+                                        <p>Nombre</p>
+                                            <input type="text" name="nombre" onChange={onchangeSubcat} className="form-control"></input>
+                                        
+                                        <Grid className="form-group">
+                                            <label>Genero</label><br/>
+                                            <span>Masculino <input type="radio" name="genero" onChange={onchangeSubcat}  value="masc" ></input></span>
+                                            <span> Femenino  <input type="radio" name="genero" onChange={onchangeSubcat}  value="fem" ></input></span>
+                                            <span> Mixto  <input type="radio" name="genero" onChange={onchangeSubcat}  value="mixto" ></input></span>
+                                        </Grid>
+                                        <Grid className="form-group">
+                                            <label>Edad máxima</label>
+                                            <input type="number" name="edadMax" onChange={onchangeSubcat}></input>
+                                        </Grid>
+                                        
+                                    <button className="btn btn-primary" onClick={()=>handleAddSubCategory(user,subcat.nombre,subcat.genero)}>ADD SUBCATEGORY</button><br></br>
+                                    </div>
                                         <div className="form-group">
                                         <label>Genero</label>
                                         <input type="text" name="genero" onChange={handleChangeChampsUpdate} defaultValue={user.genero} className="form-control"></input><br></br>
@@ -604,24 +809,31 @@ const [date, setDate] = useState(new Date());
                                         <button type="submit" className="btn btn-primary" style={{margin: "10px"}}>Guardar</button>
                                         
                                         </form>
-                                        
                                         </div>
-                                    
                                         }
-                                        </div>
-                                            
+                                        </Grid>
+                                 
+                                     
+                                      
+                                       
+                                        
                                     
+                            
+                                       
+                                       </Grid>
+                                            
+                                        
                                     )}
+                               
                                </Grid>
-                  
                     
                         }
 
 
          </Grid>
      </Grid>
-   
-          <ChampsTest />
+                        
+        
         </Grid>
        
     )

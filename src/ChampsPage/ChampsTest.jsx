@@ -80,7 +80,7 @@ export const ChampsTest = () => {
 
     useEffect(() => {
 
-        
+        dispatch(alertActions.clear());
 
         getAlllChamps();
         setInscripto({

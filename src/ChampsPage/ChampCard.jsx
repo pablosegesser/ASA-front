@@ -12,22 +12,34 @@ import moment from 'moment';
 const useStyles = makeStyles((theme) =>({
 paper:{
     width:"90%",
-    height:500,
+    height:550,
     backgroundColor: "#f5f5f5",
-    margin: "0 auto"
+    padding:20,
+    margin: "0 auto",
+    overflowY:"auto",
+    [theme.breakpoints.down('xs')]:{
+        width:"100%"
+    }
 },
 title:{
-    fontSize: 20,
+    fontSize: 26,
     color: "#000",
-    textAlign: "center"
+    textAlign: "center",
+    fontWeight: "bold"
 },
 img:{
-    width: "100%",
-    maxHeight: "400px"
+    maxWidth: "320px",
+    maxHeight: "320px",
+    [theme.breakpoints.down('xs')]:{
+        maxWidth:"100%"
+    }
 },
 contImg:{
     padding: 10,
     textAlign: "center"
+},
+center:{
+    textAlign:"center"
 }
 
 
@@ -49,15 +61,15 @@ const fecha = moment(champ.fechaHasta).format('DD-MM-YYYY');
         if(!detaills){
             return(
                
-                    <Fragment>
+                    <Grid className={classes.center}>
                          <Typography className={classes.title}>{champ.nombre}</Typography>
-                         <Typography>Categoria: {champ.categoria}</Typography>
+                         <Typography><strong>Categoria:</strong> {champ.categoria}</Typography>
                         <Grid item className={classes.contImg}>
                         <img src={imagen} className={classes.img} alt="portada campeonato" />
                         </Grid>
-                        <Typography>Precio de incripcion: ${champ.precio}</Typography>
-                        <Typography>Inscripciones hasta: {fecha}</Typography>
-                    </Fragment>
+                        <Typography><strong>Precio de incripcion:</strong> ${champ.precio}</Typography>
+                        <Typography><strong>Inscripciones hasta:</strong> {fecha}</Typography>
+                    </Grid>
           
             );
         }else{

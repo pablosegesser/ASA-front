@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { history } from '../_helpers';
@@ -7,9 +7,12 @@ import { PrivateRoute } from '../_components';
 import { HomePage } from '../HomePage';
 import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
-import { champsPage } from '../ChampsPage';
+import { ChampsPage } from '../ChampsPage/ChampsPage';
 import MainContainer from '../_layout/MainContainer'
 import { UsersPage } from '../UsersPage/UsersPage';
+import {Dialog, DialogActions, DialogContent, DialogTitle, Divider} from "@material-ui/core";
+
+
 
 function App() {
     const loggingIn = useSelector(state => state.authentication); 
@@ -20,26 +23,41 @@ if(loggingIn !== undefined && loggingIn !== ''){
 }else{
     console.log('no')
 }
+const [open, setopen] = useState(true);
+const close = ()=>{
+    setopen(!open);
+    setTimeout(() => {
+        dispatch(alertActions.clear());
+        setopen(true)
+    }, 300)
+}
     useEffect(() => {
         history.listen((location, action) => {
             // clear alert on location change
-            dispatch(alertActions.clear('lalalala'));
+          dispatch(alertActions.clear());
         });
+        
     }, []);
-
+{/*
+      setTimeout(() => {
+        dispatch(alertActions.clear());
+    }, 8000)*/}
     return (
         <div>
                    
-                    <Router history={history}>
+            <Router history={history}>
                    
-                   
-                    <MainContainer loggedIn={loggingIn.loggedIn}>
-                    {alert.message &&
-                        <div className={`alert ${alert.type}`}>{alert.message}</div>
-                    }
+           
+                        <MainContainer loggedIn={loggingIn.loggedIn}>
+                        {alert.message && 
+                        <Dialog open={open} onClose={()=>close()}>
+                            <DialogContent>
+                            <div className={`alert ${alert.type}`}>{alert.message}</div>
+                            </DialogContent>
+                        </Dialog>}
                         <Switch>
                             <PrivateRoute exact path="/" component={HomePage} />
-                            <PrivateRoute exact path="/campeonatos" component={champsPage} />
+                            <PrivateRoute exact path="/campeonatos" component={ChampsPage} />
                             <PrivateRoute exact path="/usuarios" component={UsersPage} />
                             <Route path="/login" component={LoginPage} />
                             <Route path="/register" component={RegisterPage} />
@@ -48,8 +66,8 @@ if(loggingIn !== undefined && loggingIn !== ''){
                     </MainContainer>
                     
                    
-                    </Router>
-              </div>
+            </Router>
+     </div>
        
     );
 }
